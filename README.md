@@ -4,6 +4,11 @@ jQuery plugin to handle "select all checkboxes" behavior:
 - when all checkboxes are checked, the "select all" checkbox is also checked;
 - when at least one checkbox is unchecked, the "select all" checkbox is unchecked.
 
+## Demos
+- [Demo 1](https://cdn.rawgit.com/nunof07/jquery-selectall/67c954a8c3c130130a19ab457cbd8e29b6585e58/demo1.html)
+- [Demo 2](https://cdn.rawgit.com/nunof07/jquery-selectall/67c954a8c3c130130a19ab457cbd8e29b6585e58/demo2.html)
+- [Demo 3](https://cdn.rawgit.com/nunof07/jquery-selectall/67c954a8c3c130130a19ab457cbd8e29b6585e58/demo3.html)
+
 ## How to
 
 ### Basic usage
