@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Demo 1: jQuery Select All Checkboxes Plugin</title>
+</head>
+
+<body>
+	<label><input type="checkbox" class="selectAll"> Select all</label><br />
+	<label><input type="checkbox" value="AAA" name="c1" class="checkbox"> AAA</label><br />
+	<label><input type="checkbox" value="BBB" name="c1" class="checkbox"> BBB</label><br />
+	<label><input type="checkbox" value="CCC" name="c1" class="checkbox"> CCC</label><br />
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="jquery.selectall.js"></script>
+	<script>
+		$(document).ready(function () {
+			$(".selectAll").selectAll();
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>jQuery Select All Checkboxes Plugin Tests</title>
+	<link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
+</head>
+
+<body>
+	<div id="qunit"></div>
+  	<div id="qunit-fixture"></div>
+	<div id="container1" class="container">
+		<label><input type="checkbox" class="selectAll"> Select all</label><br />
+		<label><input type="checkbox" value="AAA" name="c1" class="checkbox"> AAA</label><br />
+		<label><input type="checkbox" value="BBB" name="c1" class="checkbox"> BBB</label><br />
+		<label><input type="checkbox" value="CCC" name="c1" class="checkbox"> CCC</label><br />
+		<br />
+	</div>
+	<div id="container2" class="container">
+		<label><input type="checkbox" class="selectAll"> Select all</label><br />
+		<label><input type="checkbox" value="XXX" name="c2" class="checkbox"> XXX</label><br />
+		<label><input type="checkbox" value="YYY" name="c2" class="checkbox"> YYY</label><br />
+		<label><input type="checkbox" value="ZZZ" name="c2" class="checkbox"> ZZZ</label><br />
+		<br />
+	</div>
+	<div id="container3" class="container"></div>
+	<!--<div id="container4" class="container"></div>-->
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
+	<script src="jquery.selectall.js"></script>
+	<script>
+		$(document).ready(function () {
+			QUnit.module("selectAll", {
+				afterEach: function() {
+					// deselect all checkboxes
+					$("input:checkbox").prop("checked", false);
+					
+					// remove event handlers
+					$("input:checkbox").off("change");
+					$(".container").off("change");
+				}
+			});
+			
+			// no arguments
+			// check select all
+			// should select all checkboxes
+			QUnit.test("(): select all", function (assert) {
+				$("#container1 .selectAll").selectAll()
+					.prop("checked", true)
+					.trigger("change");
+				var all = $("#container1 .checkbox:not(.selectAll)"),
+					actual = all.filter(":checked").length,
+					expected = all.length;
+				assert.equal(actual, expected, "Checkboxes selected!");
+			});
+			
+			// no arguments
+			// uncheck select all
+			// should deselect all checkboxes
+			QUnit.test("(): deselect all", function (assert) {
+				$("#container1 .selectAll").selectAll()
+					.prop("checked", true)
+					.trigger("change")
+					.prop("checked", false)
+					.trigger("change");
+				var actual = $("#container1 .checkbox:not(.selectAll):checked").length;
+				assert.equal(actual, 0, "Checkboxes unchecked!");
+			});
+			
+			// pass checkbox selector as string
+			// all checkboxes are already checked before calling plugin
+			// make sure select all is checked after calling plugin
+			QUnit.test("(checkboxSelector): initial state", function (assert) {
+				$("#container1 .checkbox").prop("checked", true);
+				$("#container1 .selectAll").selectAll("#container1 .checkbox");
+				var actual = $("#container1 .selectAll").prop("checked");
+				assert.equal(actual, true, "Select all checked!");
+			});
+			
+			// pass checkbox selector as string
+			// manually check all checkboxes
+			// select all checkbox should be updated
+			QUnit.test("(checkboxSelector): manual select", function (assert) {
+				$("#container1 .selectAll").selectAll("#container1 .checkbox");
+				$("#container1 .checkbox")
+					.prop("checked", true)
+					.trigger("change");
+				var actual = $("#container1 .selectAll").prop("checked");
+				assert.equal(actual, true, "Select all checked!");
+			});
+			
+			// pass checkbox selector as string
+			// select all checkboxes
+			// uncheck one checkbox
+			// select all should be unchecked
+			QUnit.test("(checkboxSelector): manual deselect", function (assert) {
+				var all = $("#container1 .checkbox"),
+					first = $(all[0]);
+				
+				$("#container1 .selectAll")
+					.selectAll("#container1 .checkbox")
+					.prop("checked", true)
+					.trigger("change");
+				assert.equal(all.filter(":checked").length, all.length, "Checkboxes selected!");
+				
+				first
+					.prop("checked", false)
+					.trigger("change");
+				assert.equal(first.prop("checked"), false, "First checkbox unchecked!");
+				assert.equal($("#container1 .selectAll").prop("checked"), false, "Select all checkbox unchecked!");
+			});
+			
+			// pass checkbox selector as string
+			// check select all
+			// should select only checkboxes with selector
+			QUnit.test("(checkboxSelector): select all", function (assert) {
+				$("#container1 .selectAll").selectAll("#container1 .checkbox")
+					.prop("checked", true)
+					.trigger("change");
+				var all = $("#container1 .checkbox:not(.selectAll)");
+					actual = all.filter(":checked").length,
+					expected = all.length,
+					othersAll = $("#container2 .checkbox:not(.selectAll)"),
+					othersActual = othersAll.filter(":checked").length;
+				assert.equal(actual, expected, "Checkboxes selected!");
+				assert.equal(othersActual, 0, "No unrelated checkboxes selected!");
+			});
+			
+			// pass checkbox selector as string
+			// uncheck select all
+			// should deselect checkboxes with selector and no others
+			QUnit.test("(checkboxSelector): deselect all", function (assert) {
+				$("#container2 .checkbox").prop("checked", true);
+				$("#container1 .selectAll").selectAll("#container1 .checkbox")
+					.prop("checked", true)
+					.trigger("change")
+					.prop("checked", false)
+					.trigger("change");
+				var actual = $("#container1 .checkbox:not(.selectAll):checked").length,
+					othersAll = $("#container2 .checkbox:not(.selectAll)"),
+					othersActual = othersAll.filter(":checked").length,
+					othersExpected = othersAll.length;
+				assert.equal(actual, 0, "Checkboxes unchecked!");
+				assert.equal(othersActual, othersExpected, "No unrelated checkboxes unchecked!");
+			});
+			
+			// call on generic container class
+			// check select all of particular container
+			// should only select checkboxes from that container
+			QUnit.test("(container): select all", function (assert) {
+				$(".container").selectAll({container: true, selectAll: ".selectAll"});
+				$("#container1 .selectAll")
+					.prop("checked", true)
+					.trigger("change");
+				var all = $("#container1 .checkbox:not(.selectAll)"),
+					actual = all.filter(":checked").length,
+					expected = all.length,
+					othersAll = $("#container2 .checkbox:not(.selectAll)"),
+					othersActual = othersAll.filter(":checked").length;
+				assert.equal(actual, expected, "Checkboxes selected!");
+				assert.equal(othersActual, 0, "No unrelated checkboxes selected!");
+			});
+			
+			// call on generic container class
+			// uncheck select all in particular container
+			// should only deselect checkboxes from that container
+			QUnit.test("(container): deselect all", function (assert) {
+				$(".container").selectAll({container: true, selectAll: ".selectAll"});
+				$(".selectAll")
+					.prop("checked", true)
+					.trigger("change");
+				$("#container1 .selectAll")
+					.prop("checked", false)
+					.trigger("change");
+				var actual = $("#container1 .checkbox:not(.selectAll):checked").length,
+					othersAll = $("#container2 .checkbox:not(.selectAll)"),
+					othersActual = othersAll.filter(":checked").length,
+					othersExpected = othersAll.length;
+				assert.equal(actual, 0, "Checkboxes unchecked!");
+				assert.equal(othersActual, othersExpected, "No unrelated checkboxes unchecked!");
+			});
+			
+			// call plugin on container
+			// dynamically add select all and checkboxes
+			// check select all
+			// make sure checkboxes are checked
+			QUnit.test("(dynamic container): select all", function (assert) {
+				$("#container3").selectAll({container: true, selectAll: ".selectAll"});
+				
+				var newElements = $("#container2").children().clone();
+				$("#container3").append(newElements);
+				$("#container3 .selectAll")
+					.prop("checked", true)
+					.trigger("change");
+					
+				var all = $("#container3 .checkbox:not(.selectAll)");
+					actual = all.filter(":checked").length,
+					expected = all.length;
+				assert.equal(actual, expected, "Checkboxes selected!");
+			});
+			
+			// call plugin on container
+			// dynamically add select all and already checked checkboxes
+			// select all should be selected
+			// QUnit.test("(dynamic container): initial state", function (assert) {
+			// 	$("#container4").selectAll({container: true, selectAll: ".selectAll"});
+				
+			// 	var newElements = $("#container2").children().clone();
+			// 	$(".checkbox", newElements).prop("checked", true);
+			// 	$("#container4").append(newElements);
+				
+			// 	var actual = $("#container4 .selectAll").prop("checked");
+			// 	assert.equal(actual, true, "Select all checkbox checked!");
+			// });
+		});
+	</script>
+</body>
+
+</html>
